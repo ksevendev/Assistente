@@ -1,396 +1,182 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - KREDE v4.1</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>k7-core · Acesso</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        :root {
-            --color-cyan: #00BCD4;
-            --color-orange: #FF9800;
-            --color-dark: #0D1B2A;
-            --color-darker: #051E3E;
-            --color-white: #FFFFFF;
-            --color-gray: #757575;
-            --color-danger: #F44336;
-            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.3);
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+  :root {
+    --bg:       #080a0f;
+    --surface:  #0d1117;
+    --border:   #1e2535;
+    --text:     #c9d1e0;
+    --muted:    #4a5568;
+    --accent:   {{ palette.hex_primary }};
+    --glow:     {{ palette.hex_glow }};
+    --error:    #ff4757;
+    --success:  #2ed573;
+    --font-head: 'Syne', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
 
-        html, body {
-            width: 100%;
-            height: 100%;
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, var(--color-darker) 0%, var(--color-dark) 100%);
-            overflow: hidden;
-        }
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
 
-        body {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
 
-        /* BACKGROUND ANIMATION */
-        .bg-animation {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(0, 188, 212, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(255, 152, 0, 0.1) 0%, transparent 50%);
-            pointer-events: none;
-        }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--accent);
+    box-shadow: 0 0 40px var(--glow), 0 20px 60px rgba(0,0,0,.6);
+    border-radius: 4px;
+    padding: 48px 40px;
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+    animation: fadeUp .4s ease both;
+  }
 
-        .blob {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(40px);
-            animation: float 20s infinite ease-in-out;
-        }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
 
-        .blob-1 {
-            width: 300px;
-            height: 300px;
-            background: rgba(0, 188, 212, 0.2);
-            top: 10%;
-            left: 10%;
-            animation-delay: 0s;
-        }
+  .logo {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 28px;
+    letter-spacing: -1px;
+    color: var(--accent);
+    margin-bottom: 6px;
+    text-shadow: 0 0 20px var(--glow);
+  }
 
-        .blob-2 {
-            width: 250px;
-            height: 250px;
-            background: rgba(255, 152, 0, 0.15);
-            bottom: 10%;
-            right: 10%;
-            animation-delay: 5s;
-        }
+  .subtitle {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 36px;
+  }
 
-        .blob-3 {
-            width: 200px;
-            height: 200px;
-            background: rgba(0, 188, 212, 0.15);
-            bottom: 30%;
-            left: 20%;
-            animation-delay: 10s;
-        }
+  .field { margin-bottom: 20px; }
 
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0); }
-            33% { transform: translate(50px, -50px); }
-            66% { transform: translate(-50px, 50px); }
-        }
+  label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
 
-        /* LOGIN CONTAINER */
-        .login-container {
-            width: 100%;
-            max-width: 420px;
-            padding: 2rem;
-            z-index: 1;
-        }
+  input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
 
-        /* CARD */
-        .login-card {
-            background: rgba(5, 30, 62, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(0, 188, 212, 0.3);
-            border-radius: 16px;
-            padding: 3rem 2rem;
-            box-shadow: var(--shadow-lg);
-            animation: slideUp 0.6s ease-out;
-        }
+  input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--glow);
+  }
 
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+  button[type=submit] {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 13px;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background .2s, box-shadow .2s;
+  }
 
-        /* LOGO & TITLE */
-        .login-header {
-            text-align: center;
-            margin-bottom: 2.5rem;
-        }
+  button[type=submit]:hover {
+    background: var(--glow);
+    box-shadow: 0 0 20px var(--glow);
+  }
 
-        .logo {
-            font-size: 2.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--color-cyan), var(--color-orange));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 0.5rem;
-            letter-spacing: -1px;
-        }
+  .alert {
+    padding: 10px 14px;
+    border-radius: 3px;
+    font-size: 13px;
+    margin-bottom: 20px;
+    border-left: 3px solid;
+  }
+  .alert-error   { background: rgba(255,71,87,.1); border-color: var(--error); color: #ff6b7a; }
+  .alert-success { background: rgba(46,213,115,.1); border-color: var(--success); color: #5dde90; }
 
-        .logo-subtitle {
-            color: var(--color-gray);
-            font-size: 0.95rem;
-            margin-top: 0.5rem;
-            letter-spacing: 0.5px;
-        }
-
-        .tagline {
-            color: var(--color-cyan);
-            font-size: 0.85rem;
-            margin-top: 1rem;
-            font-weight: 500;
-        }
-
-        /* FORM */
-        .login-form {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .form-label {
-            color: var(--color-white);
-            font-size: 0.9rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .form-input {
-            padding: 0.9rem 1rem;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(0, 188, 212, 0.3);
-            border-radius: 8px;
-            color: var(--color-white);
-            font-size: 0.95rem;
-            transition: var(--transition);
-            font-family: inherit;
-        }
-
-        .form-input:focus {
-            outline: none;
-            background: rgba(255, 255, 255, 0.12);
-            border-color: var(--color-cyan);
-            box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1);
-        }
-
-        .form-input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        /* BUTTON */
-        .login-btn {
-            padding: 1rem;
-            background: linear-gradient(135deg, var(--color-cyan), #0097A7);
-            color: var(--color-dark);
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: var(--transition);
-            margin-top: 1rem;
-        }
-
-        .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 30px rgba(0, 188, 212, 0.3);
-        }
-
-        .login-btn:active {
-            transform: translateY(0);
-        }
-
-        .login-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        /* ERROR MESSAGE */
-        .error-message {
-            background: rgba(244, 67, 54, 0.15);
-            border: 1px solid var(--color-danger);
-            border-radius: 8px;
-            padding: 1rem;
-            color: #FF8A80;
-            font-size: 0.9rem;
-            text-align: center;
-            margin-bottom: 1.5rem;
-            animation: shake 0.5s ease-out;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-
-        /* FOOTER */
-        .login-footer {
-            text-align: center;
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 0.85rem;
-            color: var(--color-gray);
-        }
-
-        .version-badge {
-            display: inline-block;
-            background: rgba(0, 188, 212, 0.1);
-            border: 1px solid rgba(0, 188, 212, 0.3);
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            margin-top: 1rem;
-            color: var(--color-cyan);
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        /* DEMO CREDENTIALS */
-        .demo-info {
-            background: rgba(255, 193, 7, 0.1);
-            border: 1px solid rgba(255, 193, 7, 0.3);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-top: 1.5rem;
-            font-size: 0.8rem;
-            color: var(--color-gray);
-            line-height: 1.6;
-        }
-
-        .demo-info strong {
-            color: var(--color-white);
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 480px) {
-            .login-container {
-                max-width: 100%;
-            }
-
-            .login-card {
-                padding: 2rem 1.5rem;
-                border-radius: 12px;
-            }
-
-            .logo {
-                font-size: 2rem;
-            }
-        }
-    </style>
+  .node-badge {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: .6;
+  }
+</style>
 </head>
 <body>
-    <!-- BACKGROUND ANIMATIONS -->
-    <div class="bg-animation">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
+<div class="card">
+  <div class="node-badge">{{ node_type.upper() }}</div>
+  <div class="logo">k7-core</div>
+  <div class="subtitle">Sistema de Controle · Acesso Restrito</div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <form method="POST">
+    <div class="field">
+      <label>Usuário</label>
+      <input type="text" name="username" autocomplete="username" autofocus required>
     </div>
-
-    <!-- LOGIN CONTAINER -->
-    <div class="login-container">
-        <div class="login-card">
-            <!-- HEADER -->
-            <div class="login-header">
-                <div class="logo">K7—CORE</div>
-                <div class="logo-subtitle">Sistema de Assistente Distribuído</div>
-                <div class="tagline">Versão 4.1 - Acesso Restrito</div>
-            </div>
-
-            <!-- ERROR MESSAGE -->
-            {% if error %}
-            <div class="error-message">
-                ⚠️ {{ error }}
-            </div>
-            {% endif %}
-
-            <!-- FORM -->
-            <form method="POST" class="login-form">
-                <!-- USERNAME -->
-                <div class="form-group">
-                    <label class="form-label" for="username">Usuário</label>
-                    <input 
-                        type="text" 
-                        id="username" 
-                        name="username" 
-                        class="form-input" 
-                        placeholder="Seu nome de usuário"
-                        required
-                        autofocus
-                    >
-                </div>
-
-                <!-- PASSWORD -->
-                <div class="form-group">
-                    <label class="form-label" for="password">Senha</label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
-                        class="form-input" 
-                        placeholder="Sua senha"
-                        required
-                    >
-                </div>
-
-                <!-- LOGIN BUTTON -->
-                <button type="submit" class="login-btn">Entrar</button>
-            </form>
-
-            <!-- DEMO CREDENTIALS -->
-            <div class="demo-info">
-                <strong>Credenciais de Demonstração:</strong><br>
-                Usuário: <code style="color: var(--color-cyan);">admin</code><br>
-                Senha: <code style="color: var(--color-cyan);">admin123</code>
-            </div>
-
-            <!-- FOOTER -->
-            <div class="login-footer">
-                <div style="color: var(--color-cyan); font-weight: 500; margin-bottom: 0.5rem;">
-                    🔐 Sua conexão está protegida
-                </div>
-                <div class="version-badge">K7-Core v4.1 Build 2025</div>
-            </div>
-        </div>
+    <div class="field">
+      <label>Senha</label>
+      <input type="password" name="password" autocomplete="current-password" required>
     </div>
-
-    <script>
-        // Focus management
-        document.getElementById('username').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                document.getElementById('password').focus();
-            }
-        });
-
-        // Remover erro ao digitar
-        document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('focus', () => {
-                const errorMsg = document.querySelector('.error-message');
-                if (errorMsg) {
-                    errorMsg.style.display = 'none';
-                }
-            });
-        });
-    </script>
+    <button type="submit">Entrar →</button>
+  </form>
+</div>
 </body>
 </html>
