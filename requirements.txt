@@ -1,22 +1,17 @@
-# k7-core v3 | requirements.txt
-# Linux Desktop:
-#   pip install -r requirements.txt
-# Android (Termux) — instale apenas o bloco marcado [termux]:
-#   pip install flask requests paramiko
+# k7-core v4 | requirements.txt
 
-# --- Core (todos os nós) ---
+# --- Core web + auth ---
 flask>=3.0.0
+flask-login>=0.6.3
+werkzeug>=3.0.0
 requests>=2.31.0
 
-# --- Desktop (seven / spark) ---
+# --- Voice (Desktop) ---
 SpeechRecognition>=3.10.0
 PyAudio>=0.2.14
 paramiko>=3.4.0
 gTTS>=2.5.0
 pygame>=2.5.0
 
-# --- Android / Termux ---
-# flask e requests já incluídos acima
-# paramiko: pode precisar de compilação — tente: pip install paramiko
-# PyAudio: NÃO instalar no Termux (sem suporte nativo)
-# SpeechRecognition: NÃO instalar no Termux (usa API nativa)
+# --- Android/Termux (apenas flask, requests, paramiko) ---
+# PyAudio e SpeechRecognition NÃO instalar no Termux

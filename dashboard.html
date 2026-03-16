@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#080a0f">
+<meta name="mobile-web-app-capable" content="yes">
+<title>k7-core · Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+<style>
+/* ============================================================
+   RESET & TOKENS
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #080a0f;
+  --bg2:       #0d1117;
+  --bg3:       #111620;
+  --border:    #1a2030;
+  --border2:   #242d40;
+  --text:      #c9d1e0;
+  --muted:     #4a5568;
+  --muted2:    #2d3748;
+  --success:   #2ed573;
+  --danger:    #ff4757;
+  --warn:      #ffa502;
+  --font-head: 'Syne', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius:    4px;
+  --radius-lg: 6px;
+  /* Paleta do nó servidor — injetada via Jinja */
+  --host-color:  {{ palette.hex_primary }};
+  --host-glow:   {{ palette.hex_glow }};
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* Grid bg */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.012) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ============================================================
+   LAYOUT SHELL
+   ============================================================ */
+.shell {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: 56px 1fr;
+  min-height: 100dvh;
+}
+
+/* ============================================================
+   TOPBAR
+   ============================================================ */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0 24px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+}
+
+.topbar-logo {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -0.5px;
+  color: var(--host-color);
+  text-shadow: 0 0 16px var(--host-glow);
+  white-space: nowrap;
+}
+
+.topbar-sep { flex: 1; }
+
+.topbar-node {
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-right: 20px;
+}
+
+.topbar-node span {
+  color: var(--host-color);
+  margin-left: 4px;
+}
+
+.topbar-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--muted);
+  text-decoration: none;
+  transition: all .2s;
+  white-space: nowrap;
+}
+.topbar-btn:hover { border-color: var(--border2); background: var(--bg3); color: var(--text); }
+.topbar-btn .material-icons-round { font-size: 15px; }
+
+.live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  color: var(--muted);
+  margin-right: 16px;
+}
+.live-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--success);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(46,213,115,.4); }
+  50%      { opacity: .7; box-shadow: 0 0 0 4px rgba(46,213,115,0); }
+}
+
+/* ============================================================
+   MAIN
+   ============================================================ */
+.main {
+  padding: 28px 24px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ============================================================
+   SECTION HEADER
+   ============================================================ */
+.section-label {
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ============================================================
+   NODE CARDS GRID
+   ============================================================ */
+.nodes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+/* Card — cor injetada via style= no HTML */
+.node-card {
+  background: var(--bg2);
+  border: 1px solid var(--card-border, var(--border));
+  border-top: 2px solid var(--card-color, var(--border2));
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: box-shadow .25s, transform .2s;
+  position: relative;
+  overflow: hidden;
+}
+.node-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 60px;
+  background: var(--card-bg, transparent);
+  pointer-events: none;
+}
+.node-card:hover {
+  box-shadow: 0 0 24px var(--card-glow, transparent);
+  transform: translateY(-1px);
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+}
+
+.card-icon {
+  width: 40px; height: 40px;
+  border-radius: var(--radius);
+  background: var(--card-bg, var(--bg3));
+  border: 1px solid var(--card-border, var(--border));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.card-icon .material-icons-round {
+  font-size: 20px;
+  color: var(--card-color, var(--muted));
+}
+
+.card-meta { flex: 1; min-width: 0; }
+
+.card-name {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--card-color, var(--text));
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+.card-specs {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.status-badge.online  { background: rgba(46,213,115,.12); color: var(--success); }
+.status-badge.offline { background: rgba(255,71,87,.12);  color: var(--danger);  }
+.status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.status-badge.online .status-dot { animation: pulse 2s infinite; }
+
+/* Stats row */
+.card-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.stat-item {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+}
+
+.stat-label {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Mini bar */
+.mini-bar {
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+.mini-bar-fill {
+  height: 100%;
+  background: var(--card-color, var(--host-color));
+  border-radius: 2px;
+  transition: width .5s ease;
+}
+
+/* Actions */
+.card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 1px solid;
+  background: transparent;
+  transition: all .2s;
+  white-space: nowrap;
+}
+.btn .material-icons-round { font-size: 14px; }
+
+.btn-ghost {
+  border-color: var(--border2);
+  color: var(--muted);
+}
+.btn-ghost:hover { border-color: var(--card-color); color: var(--card-color); background: var(--card-bg); }
+
+.btn-danger {
+  border-color: rgba(255,71,87,.3);
+  color: var(--danger);
+}
+.btn-danger:hover { background: rgba(255,71,87,.1); }
+
+.btn-primary {
+  border-color: var(--card-color, var(--host-color));
+  color: var(--card-color, var(--host-color));
+}
+.btn-primary:hover { background: var(--card-bg, var(--host-glow)); box-shadow: 0 0 12px var(--card-glow, var(--host-glow)); }
+
+.btn-success {
+  border-color: rgba(46,213,115,.4);
+  color: var(--success);
+}
+.btn-success:hover { background: rgba(46,213,115,.08); }
+
+/* Disabled state */
+.btn:disabled, .btn[disabled] {
+  opacity: .35;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   TERMINAL PANEL  (inline por card)
+   ============================================================ */
+.terminal-panel {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.terminal-panel.open { display: flex; }
+
+.terminal-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--muted);
+}
+.terminal-header::before {
+  content: '●';
+  color: var(--danger);
+  margin-right: 1px;
+}
+.terminal-header::after {
+  content: '●  ●';
+  color: var(--warn);
+  margin-right: 2px;
+}
+
+.terminal-output {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  color: #a0aec0;
+  padding: 10px 14px;
+  min-height: 60px;
+  max-height: 200px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.terminal-output:empty::before {
+  content: 'sem output';
+  color: var(--muted2);
+  font-style: italic;
+}
+.out-success { color: var(--success); }
+.out-error   { color: var(--danger); }
+.out-prompt  { color: var(--card-color, var(--host-color)); }
+
+.terminal-input-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border-top: 1px solid var(--border);
+}
+.terminal-prompt {
+  padding: 0 10px;
+  color: var(--card-color, var(--host-color));
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.terminal-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 9px 4px;
+  caret-color: var(--card-color, var(--host-color));
+}
+.terminal-send {
+  padding: 0 12px;
+  height: 100%;
+  background: transparent;
+  border: none;
+  border-left: 1px solid var(--border);
+  color: var(--muted);
+  cursor: pointer;
+  transition: color .2s;
+}
+.terminal-send:hover { color: var(--card-color, var(--host-color)); }
+.terminal-send .material-icons-round { font-size: 16px; display: block; }
+
+/* ============================================================
+   SPEAK PANEL
+   ============================================================ */
+.speak-panel {
+  display: none;
+  gap: 8px;
+}
+.speak-panel.open { display: flex; }
+.speak-input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color .2s;
+}
+.speak-input:focus { border-color: var(--card-color, var(--host-color)); }
+.speak-send {
+  padding: 9px 14px;
+  border-radius: var(--radius);
+  background: transparent;
+  border: 1px solid var(--card-color, var(--host-color));
+  color: var(--card-color, var(--host-color));
+  font-family: var(--font-mono);
+  font-size: 11px;
+  cursor: pointer;
+  transition: background .2s;
+}
+.speak-send:hover { background: var(--card-bg, var(--host-glow)); }
+
+/* ============================================================
+   BROADCAST BAR
+   ============================================================ */
+.broadcast-bar {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.broadcast-label {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.broadcast-input {
+  flex: 1;
+  min-width: 200px;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 9px 14px;
+  outline: none;
+  transition: border-color .2s;
+}
+.broadcast-input:focus { border-color: var(--host-color); }
+
+/* ============================================================
+   TOAST NOTIFICATIONS
+   ============================================================ */
+#toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 10px;
+  pointer-events: none;
+}
+.toast {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-left: 3px solid;
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-size: 12px;
+  max-width: 320px;
+  animation: toastIn .25s ease both;
+  pointer-events: auto;
+  box-shadow: 0 4px 24px rgba(0,0,0,.5);
+}
+.toast.ok     { border-left-color: var(--success); }
+.toast.error  { border-left-color: var(--danger);  }
+.toast.info   { border-left-color: var(--host-color); }
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ============================================================
+   AUDIT LOG SECTION
+   ============================================================ */
+.log-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.log-table th {
+  text-align: left;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0 12px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.log-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+.log-table tr:last-child td { border-bottom: none; }
+.log-table tr:hover td { background: var(--bg3); }
+
+/* ============================================================
+   CHANGE PASSWORD MODAL
+   ============================================================ */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--host-color);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  width: 100%;
+  max-width: 380px;
+  animation: fadeUp .3s ease;
+  box-shadow: 0 0 40px var(--host-glow);
+}
+.modal-title {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: var(--text);
+}
+.form-field { margin-bottom: 16px; }
+.form-label {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 7px;
+}
+.form-input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color .2s;
+}
+.form-input:focus { border-color: var(--host-color); }
+.modal-actions { display: flex; gap: 10px; margin-top: 8px; }
+.modal-actions .btn { flex: 1; justify-content: center; }
+
+/* ============================================================
+   RESPONSIVE — Mobile (Chrome Android)
+   ============================================================ */
+@media (max-width: 640px) {
+  .topbar { padding: 0 16px; }
+  .topbar-node { display: none; }
+  .main { padding: 16px 12px 60px; }
+  .nodes-grid { grid-template-columns: 1fr; }
+  .card-stats { grid-template-columns: repeat(2, 1fr); }
+  .broadcast-bar { flex-direction: column; align-items: stretch; }
+  .broadcast-input { min-width: 0; }
+  #toast-container { bottom: 12px; right: 12px; left: 12px; }
+  .toast { max-width: 100%; }
+  .log-table th:nth-child(3),
+  .log-table td:nth-child(3) { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     SHELL
+============================================================ -->
+<div class="shell">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-logo">k7-core</div>
+    <div class="topbar-sep"></div>
+    <div class="live-indicator">
+      <div class="live-dot"></div>
+      <span id="last-update">atualizando...</span>
+    </div>
+    <div class="topbar-node">nó&nbsp;<span>{{ current_node.upper() }}</span></div>
+    <button class="topbar-btn" onclick="openModal('modal-password')">
+      <span class="material-icons-round">lock</span>
+      <span class="hide-sm">{{ username }}</span>
+    </button>
+    <a href="/logout" class="topbar-btn" style="margin-left:6px">
+      <span class="material-icons-round">logout</span>
+    </a>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- NODES SECTION -->
+    <section>
+      <div class="section-label">Nós da Rede</div>
+      <div class="nodes-grid" id="nodes-grid">
+
+        {% for node in nodes %}
+        {# Injeta as cores do nó via CSS custom properties inline #}
+        <div class="node-card"
+             id="card-{{ node.node_type }}"
+             style="
+               --card-color: {{ node.color_hex_primary }};
+               --card-secondary: {{ node.color_hex_secondary }};
+               --card-bg: {{ node.color_hex_bg }};
+               --card-glow: {{ node.color_hex_glow }};
+               --card-border: {{ node.color_hex_primary }}33;
+             ">
+
+          <!-- Header -->
+          <div class="card-header">
+            <div class="card-icon">
+              <span class="material-icons-round">{{ node.icon }}</span>
+            </div>
+            <div class="card-meta">
+              <div class="card-name">{{ node.name }}</div>
+              <div class="card-specs">{{ node.specs }} · {{ node.ip }}</div>
+            </div>
+            <div class="status-badge offline" id="badge-{{ node.node_type }}">
+              <div class="status-dot"></div>
+              <span>offline</span>
+            </div>
+          </div>
+
+          <!-- Stats -->
+          <div class="card-stats" id="stats-{{ node.node_type }}">
+            <div class="stat-item">
+              <div class="stat-label">Uptime</div>
+              <div class="stat-value" id="stat-uptime-{{ node.node_type }}">—</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">
+                {%- if node.type == 'mobile' %}Bateria{% else %}CPU{% endif %}
+              </div>
+              <div class="stat-value" id="stat-cpu-{{ node.node_type }}">—</div>
+              <div class="mini-bar">
+                <div class="mini-bar-fill" id="bar-cpu-{{ node.node_type }}" style="width:0%"></div>
+              </div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">RAM</div>
+              <div class="stat-value" id="stat-mem-{{ node.node_type }}">—</div>
+              <div class="mini-bar">
+                <div class="mini-bar-fill" id="bar-mem-{{ node.node_type }}" style="width:0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Speak panel -->
+          <div class="speak-panel" id="speak-panel-{{ node.node_type }}">
+            <input class="speak-input" type="text"
+                   id="speak-input-{{ node.node_type }}"
+                   placeholder="Texto para falar..."
+                   onkeydown="if(event.key==='Enter') sendSpeak('{{ node.node_type }}')">
+            <button class="speak-send"
+                    onclick="sendSpeak('{{ node.node_type }}')">Falar</button>
+          </div>
+
+          <!-- Terminal panel -->
+          <div class="terminal-panel" id="term-panel-{{ node.node_type }}">
+            <div class="terminal-header">Terminal · {{ node.name }}</div>
+            <div class="terminal-output"
+                 id="term-out-{{ node.node_type }}"></div>
+            <div class="terminal-input-row">
+              <span class="terminal-prompt">$</span>
+              <input class="terminal-input"
+                     id="term-in-{{ node.node_type }}"
+                     type="text"
+                     placeholder="comando..."
+                     autocomplete="off"
+                     onkeydown="if(event.key==='Enter') sendTerminal('{{ node.node_type }}')">
+              <button class="terminal-send"
+                      onclick="sendTerminal('{{ node.node_type }}')">
+                <span class="material-icons-round">send</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="card-actions">
+            {% if node.mac %}
+            <button class="btn btn-success"
+                    id="btn-wake-{{ node.node_type }}"
+                    onclick="wakeNode('{{ node.node_type }}')">
+              <span class="material-icons-round">power</span> Ligar
+            </button>
+            {% endif %}
+
+            <button class="btn btn-danger"
+                    onclick="shutdownNode('{{ node.node_type }}')">
+              <span class="material-icons-round">power_off</span> Desligar
+            </button>
+
+            <button class="btn btn-ghost"
+                    onclick="toggleSpeak('{{ node.node_type }}')">
+              <span class="material-icons-round">volume_up</span> Falar
+            </button>
+
+            <button class="btn btn-primary"
+                    onclick="toggleTerminal('{{ node.node_type }}')">
+              <span class="material-icons-round">terminal</span> Terminal
+            </button>
+          </div>
+
+        </div><!-- /.node-card -->
+        {% endfor %}
+
+      </div><!-- /.nodes-grid -->
+    </section>
+
+    <!-- BROADCAST -->
+    <section>
+      <div class="section-label">Broadcast</div>
+      <div class="broadcast-bar">
+        <div class="broadcast-label">Todos os nós</div>
+        <input class="broadcast-input" type="text" id="broadcast-input"
+               placeholder="Mensagem para todos os nós..."
+               onkeydown="if(event.key==='Enter') sendBroadcast()">
+        <button class="btn btn-primary" onclick="sendBroadcast()">
+          <span class="material-icons-round">broadcast_on_home</span>
+          Enviar
+        </button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ============================================================
+     MODAL — Alterar Senha
+============================================================ -->
+<div class="modal-overlay" id="modal-password" onclick="closeModal(event, 'modal-password')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">Alterar Senha</div>
+    <form method="POST" action="/change-password">
+      <div class="form-field">
+        <label class="form-label">Senha Atual</label>
+        <input class="form-input" type="password" name="current_password" required>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Nova Senha</label>
+        <input class="form-input" type="password" name="new_password" required minlength="6">
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="closeModal(null, 'modal-password')">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
+<script>
+"use strict";
+
+// ── Utilitários ────────────────────────────────────────────────
+function toast(msg, type = 'ok') {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(e, id) {
+  if (!e || e.target.classList.contains('modal-overlay'))
+    document.getElementById(id).classList.remove('open');
+}
+
+// ── API helpers ────────────────────────────────────────────────
+async function api(url, body) {
+  try {
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    return await r.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+// ── Panel toggles ──────────────────────────────────────────────
+function togglePanel(panelId, inputId) {
+  const panel = document.getElementById(panelId);
+  const isOpen = panel.classList.toggle('open');
+  if (isOpen && inputId) {
+    const inp = document.getElementById(inputId);
+    if (inp) setTimeout(() => inp.focus(), 50);
+  }
+}
+
+function toggleTerminal(node) {
+  togglePanel(`term-panel-${node}`, `term-in-${node}`);
+}
+
+function toggleSpeak(node) {
+  togglePanel(`speak-panel-${node}`, `speak-input-${node}`);
+}
+
+// ── Node actions ───────────────────────────────────────────────
+async function wakeNode(node) {
+  const btn = document.getElementById(`btn-wake-${node}`);
+  if (btn) btn.disabled = true;
+  const data = await api('/api/wake', { node });
+  if (data.ok) {
+    toast(`Wake-on-LAN enviado para ${node}`, 'ok');
+  } else {
+    toast(data.error || `Falha ao acordar ${node}`, 'error');
+  }
+  if (btn) setTimeout(() => btn.disabled = false, 10000);
+}
+
+async function shutdownNode(node) {
+  if (!confirm(`Desligar ${node}? Esta ação não pode ser desfeita.`)) return;
+  const data = await api('/api/shutdown', { node });
+  if (data.ok) {
+    toast(`Comando de shutdown enviado para ${node}`, 'info');
+  } else {
+    toast(data.error || `Falha ao desligar ${node}`, 'error');
+  }
+}
+
+async function sendSpeak(node) {
+  const input = document.getElementById(`speak-input-${node}`);
+  const text  = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  const data = await api('/api/speak', { node, text });
+  if (data.ok) {
+    toast(`Falando em ${node}: "${text.slice(0,40)}"`, 'ok');
+  } else {
+    toast(data.error || 'Falha no TTS', 'error');
+  }
+}
+
+// ── Terminal ───────────────────────────────────────────────────
+const _termHistory = {};
+
+async function sendTerminal(node) {
+  const input  = document.getElementById(`term-in-${node}`);
+  const output = document.getElementById(`term-out-${node}`);
+  const cmd    = input.value.trim();
+  if (!cmd) return;
+  input.value = '';
+
+  // Mostra prompt + comando
+  const promptLine = document.createElement('div');
+  promptLine.className = 'out-prompt';
+  promptLine.textContent = `$ ${cmd}`;
+  output.appendChild(promptLine);
+  output.scrollTop = output.scrollHeight;
+
+  const data = await api('/api/terminal', { node, cmd });
+
+  if (data.stdout) {
+    const outLine = document.createElement('div');
+    outLine.className = data.ok ? '' : 'out-error';
+    outLine.textContent = data.stdout;
+    output.appendChild(outLine);
+  }
+  if (data.stderr) {
+    const errLine = document.createElement('div');
+    errLine.className = 'out-error';
+    errLine.textContent = data.stderr;
+    output.appendChild(errLine);
+  }
+  if (!data.ok && !data.stderr && !data.stdout) {
+    const errLine = document.createElement('div');
+    errLine.className = 'out-error';
+    errLine.textContent = data.error || 'Erro desconhecido';
+    output.appendChild(errLine);
+  }
+  output.scrollTop = output.scrollHeight;
+
+  // Limita histórico no DOM
+  while (output.children.length > 120) output.removeChild(output.firstChild);
+}
+
+// ── Broadcast ──────────────────────────────────────────────────
+async function sendBroadcast() {
+  const input = document.getElementById('broadcast-input');
+  const text  = input.value.trim();
+  if (!text) return;
+  input.value = '';
+
+  // Envia para todos os nós em paralelo via /api/speak
+  const nodes = {{ nodes | map(attribute='node_type') | list | tojson }};
+  const results = await Promise.allSettled(
+    nodes.map(n => api('/api/speak', { node: n, text }))
+  );
+
+  const ok = results.filter(r => r.status === 'fulfilled' && r.value?.ok).length;
+  toast(`Broadcast enviado para ${ok}/${nodes.length} nó(s)`, ok > 0 ? 'ok' : 'error');
+}
+
+// ── Status polling ─────────────────────────────────────────────
+function updateCard(nodeType, data) {
+  const badge = document.getElementById(`badge-${nodeType}`);
+  if (!badge) return;
+
+  const isOnline = data.online;
+
+  // Badge
+  badge.className = `status-badge ${isOnline ? 'online' : 'offline'}`;
+  badge.querySelector('span').textContent = isOnline ? 'online' : 'offline';
+
+  // Wake button state — se já online, desabilita Ligar
+  const wakeBtn = document.getElementById(`btn-wake-${nodeType}`);
+  if (wakeBtn) wakeBtn.disabled = isOnline;
+
+  if (!isOnline) {
+    document.getElementById(`stat-uptime-${nodeType}`).textContent = '—';
+    document.getElementById(`stat-cpu-${nodeType}`).textContent    = '—';
+    document.getElementById(`stat-mem-${nodeType}`).textContent    = '—';
+    document.getElementById(`bar-cpu-${nodeType}`).style.width     = '0%';
+    document.getElementById(`bar-mem-${nodeType}`).style.width     = '0%';
+    return;
+  }
+
+  // Uptime
+  const uptime = data.uptime || 'online';
+  document.getElementById(`stat-uptime-${nodeType}`).textContent =
+    uptime.replace('up ', '').replace('hours', 'h').replace('minutes', 'min') || 'online';
+
+  // CPU / Bateria
+  const cpuEl  = document.getElementById(`stat-cpu-${nodeType}`);
+  const barCpu = document.getElementById(`bar-cpu-${nodeType}`);
+  if (data.battery) {
+    const pct = parseInt(data.battery) || 0;
+    cpuEl.textContent    = data.battery;
+    barCpu.style.width   = `${Math.min(pct, 100)}%`;
+  } else if (data.cpu) {
+    const pct = parseFloat(data.cpu) || 0;
+    cpuEl.textContent    = `${pct.toFixed(1)}%`;
+    barCpu.style.width   = `${Math.min(pct, 100)}%`;
+  }
+
+  // RAM
+  const memEl  = document.getElementById(`stat-mem-${nodeType}`);
+  const barMem = document.getElementById(`bar-mem-${nodeType}`);
+  if (data.mem_used && data.mem_total) {
+    const used  = parseInt(data.mem_used)  || 0;
+    const total = parseInt(data.mem_total) || 1;
+    const pct   = Math.round(used / total * 100);
+    memEl.textContent  = `${pct}%`;
+    barMem.style.width = `${pct}%`;
+  }
+}
+
+async function pollNodes() {
+  try {
+    const r    = await fetch('/api/nodes');
+    const data = await r.json();
+    const nodes = data.nodes || {};
+
+    Object.entries(nodes).forEach(([nt, info]) => updateCard(nt, info));
+
+    const now = new Date();
+    document.getElementById('last-update').textContent =
+      `sync ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+
+  } catch (err) {
+    console.warn('[poll]', err);
+  }
+}
+
+// Inicia polling
+pollNodes();
+setInterval(pollNodes, 10_000);
+</script>
+</body>
+</html>
