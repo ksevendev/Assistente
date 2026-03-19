@@ -62,6 +62,36 @@ chmod +x setup.sh && ./setup.sh --termux
 python core.py
 ```
 
+### Windows
+```bash
+# No Windows:
+Baixe o NSSM: https://nssm.cc/download e coloque o nssm.exe dentro de C:\KRede.
+nstale o Serviço: No PowerShell (Adm), rode:
+.\nssm.exe install K7_Loh
+Configure na Janela que abrir:
+Path: C:\KRede\venv\Scripts\python.exe
+Startup directory: C:\KRede
+Arguments: core.py
+Aba "Details": No campo Display Name, coloque K7 - Lobby Instance.
+Clique em "Install Service".
+```
+
+❸ Ajuste Crucial no config.py do Loh
+```bash
+# C:\KRede\config.py
+NODE_TYPE = "loh"
+ASSISTANT_NAME = "Lobby"
+API_PORT = 7007
+IS_ANDROID = False
+# Certifique-se de que o IP do Seven (Hub) está na lista para ele poder receber comandos
+```
+❹ O que o Loh fará no Windows?
+Terminal Remoto: Você poderá dar comandos como systeminfo, tasklist ou abrir programas via start chrome.exe.
+
+Gestão de Energia: O comando shutdown /s /t 0 funcionará via Dashboard do Seven.
+Conexão Hub: Ele ficará aguardando o "ping" do seu Seven para aparecer online no painel.
+Deseja que eu prepare agora o código do engine.py específico para Windows, para garantir que os comandos de terminal não deem erro de permissão? 🦊⚡🚀
+
 ---
 
 ## Configuração — config.py
