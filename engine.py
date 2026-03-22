@@ -1,5 +1,5 @@
 # =============================================================================
-# k7-core | engine.py  — v3 (Distributed Nodes)
+# k7-core | engine.py  — v2.0 (Dynamic Discovery)
 # Motor de execução: local, SSH, WoL, API inter-nós e Termux.
 # =============================================================================
 
@@ -213,8 +213,33 @@ def wake_pc(alias: str = None, mac: str = None) -> bool:
 
 
 # ---------------------------------------------------------------------------
-# ★  COMUNICAÇÃO INTER-NÓS — API HTTP (porta 7007)
+# ★  COMUNICAÇÃO INTER-NÓS — API HTTP (porta 2026)
 # ---------------------------------------------------------------------------
+
+def _resolve_node_address(target_node: str) -> tuple[str, int]:
+    """
+    Resolve (ip, port) de um nó usando a seguinte prioridade:
+        1. NodeRegistry em memória (dados do mDNS — mais recentes)
+        2. config.NETWORK_NODES (estático / seed)
+
+    Retorna ("", 0) se o nó não for encontrado em nenhuma fonte.
+    """
+    # Tenta o NodeRegistry dinâmico primeiro (importação lazy para evitar
+    # ciclo core ↔ engine — core importa engine, engine não importa core)
+    try:
+        from core import get_registry
+        entry = get_registry().get(target_node)
+        if entry and entry.get("ip"):
+            return entry["ip"], int(entry.get("port", config.API_PORT))
+    except (ImportError, Exception):
+        pass   # core ainda não inicializado ou registry indisponível
+
+    # Fallback: config estático
+    node_info = config.NETWORK_NODES.get(target_node, {})
+    ip   = node_info.get("ip", "")
+    port = int(node_info.get("port", config.API_PORT))
+    return ip, port
+
 
 def send_node_command(
     target_node: str,
@@ -223,50 +248,49 @@ def send_node_command(
     timeout: int = 8,
 ) -> CommandResult:
     """
-    Envia um comando para outro nó da rede via HTTP POST na porta 7007.
+    Envia um comando para outro nó via HTTP POST na porta 2026 (v2.0).
 
-    Rota alvo: POST http://<node_ip>:7007/cmd
+    Rota alvo: POST http://<node_ip>:2026/cmd
+
+    Resolução de IP (em ordem de prioridade):
+        1. NodeRegistry (descoberto via mDNS em runtime)
+        2. config.NETWORK_NODES (estático / seed)
 
     Body JSON:
         {
-            "command":  "speak",          # ação a executar no nó alvo
-            "text":     "Olá, mundo!",    # parâmetro principal (opcional)
-            "origin":   "seven",          # nó de origem
-            "secret":   "<API_SECRET>"
+            "command":  "speak",
+            "text":     "...",
+            "origin":   "seven",
+            "secret":   "<API_SECRET>"        ← obrigatório para autenticação
         }
 
-    Comandos suportados pelo receptor (/cmd):
-        "speak"    → TTS no nó alvo (usa termux-tts-speak no Android)
-        "vibrate"  → vibração no celular (Termux: termux-vibrate)
-        "notify"   → notificação push (Termux: termux-notification)
-        "run"      → executa comando shell (somente se origem autorizada)
-        "status"   → retorna JSON com info do sistema
-
-    Se o alvo for "mobile", aciona comandos específicos do Termux.
+    Para operações privilegiadas (run, shutdown):
+        Adicionar "admin_secret": "<ADMIN_SECRET>" no payload.
 
     Args:
-        target_node: "seven" | "spark" | "mobile"
-        command:     Ação a executar no nó alvo.
-        payload:     Campos adicionais no body JSON.
-        timeout:     Timeout HTTP em segundos.
+        target_node: tipo do nó alvo ("seven" | "spark" | "mobile" | qualquer)
+        command:     ação a executar no nó alvo
+        payload:     campos adicionais no body JSON
+        timeout:     timeout HTTP em segundos
 
     Returns:
-        CommandResult com stdout = resposta JSON do servidor.
+        CommandResult com stdout = JSON da resposta.
     """
     if not _REQUESTS_OK:
         return CommandResult(success=False, returncode=-1,
-                             error_msg="requests não instalado. Execute: pip install requests")
+                             error_msg="requests não instalado.")
 
-    node_info = config.NETWORK_NODES.get(target_node)
-    if not node_info:
-        msg = f"Nó '{target_node}' não encontrado em config.NETWORK_NODES."
+    ip, port = _resolve_node_address(target_node)
+
+    if not ip:
+        msg = (
+            f"IP de '{target_node}' não encontrado — "
+            f"nó não descoberto via mDNS e sem IP estático em config.NETWORK_NODES."
+        )
         logger.error(f"[NODE-CMD] {msg}")
         return CommandResult(success=False, returncode=-1, error_msg=msg)
 
-    ip   = node_info["ip"]
-    port = node_info.get("port", config.API_PORT)
     url  = f"http://{ip}:{port}/cmd"
-
     body = {
         "command": command,
         "origin":  config.NODE_TYPE,
@@ -280,24 +304,22 @@ def send_node_command(
         resp = _requests.post(url, json=body, timeout=timeout)
         resp.raise_for_status()
         data = resp.json()
-        logger.info(f"[NODE-CMD] ← {target_node} | status={resp.status_code}")
+        logger.info(f"[NODE-CMD] ← {target_node} | {resp.status_code}")
         return CommandResult(
             stdout=json.dumps(data, ensure_ascii=False),
-            returncode=0,
-            success=True,
+            returncode=0, success=True,
         )
     except _requests.exceptions.ConnectTimeout:
-        msg = f"Timeout ao conectar em {target_node} ({ip}:{port})."
+        msg = f"Timeout conectando {target_node} ({ip}:{port})."
         logger.error(f"[NODE-CMD] {msg}")
         return CommandResult(success=False, returncode=-1, error_msg=msg)
     except _requests.exceptions.ConnectionError:
-        msg = f"Nó '{target_node}' ({ip}:{port}) inacessível."
+        msg = f"'{target_node}' ({ip}:{port}) inacessível."
         logger.error(f"[NODE-CMD] {msg}")
         return CommandResult(success=False, returncode=-1, error_msg=msg)
     except Exception as exc:
-        msg = str(exc)
-        logger.error(f"[NODE-CMD] {msg}", exc_info=True)
-        return CommandResult(success=False, returncode=-1, error_msg=msg)
+        logger.error(f"[NODE-CMD] {exc}", exc_info=True)
+        return CommandResult(success=False, returncode=-1, error_msg=str(exc))
 
 
 def broadcast_node_command(command: str, payload: Optional[dict] = None) -> dict[str, CommandResult]:
