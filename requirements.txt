@@ -1,4 +1,15 @@
-# k7-core v4 | requirements.txt
+fastapi
+uvicorn[standard]
+sqlalchemy[asyncio]
+asyncpg
+python-dotenv
+psutil
+asyncssh
+python-jose[cryptography]
+typer[all]
+colorama
+psycopg2-binary
+pgvector# k7-core v4 | requirements.txt
 
 # --- Core web + auth ---
 flask>=3.0.0

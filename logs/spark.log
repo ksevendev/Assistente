@@ -1,0 +1,271 @@
+23:45:48 [CRITICAL] k7.core: [CORE] 'NoneType' object has no attribute 'close'
+Traceback (most recent call last):
+  File "/root/Assistente/core.py", line 259, in listen
+    recognizer.adjust_for_ambient_noise(source, duration=0.4)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/Assistente/.venv/lib/python3.13/site-packages/speech_recognition/__init__.py", line 377, in adjust_for_ambient_noise
+    assert source.stream is not None, "Audio source must be entered before adjusting, see documentation for ``AudioSource``; are you using ``source`` outside of a ``with`` statement?"  # type: ignore[attr-defined]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Audio source must be entered before adjusting, see documentation for ``AudioSource``; are you using ``source`` outside of a ``with`` statement?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/Assistente/core.py", line 784, in _voice_loop
+    raw = listen(self._rec, self._mic)
+  File "/root/Assistente/core.py", line 258, in listen
+    with mic as source:
+         ^^^
+  File "/root/Assistente/.venv/lib/python3.13/site-packages/speech_recognition/__init__.py", line 183, in __exit__
+    self.stream.close()
+    ^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'close'
+00:32:45 [CRITICAL] k7.core: [CORE] 'NoneType' object has no attribute 'close'
+Traceback (most recent call last):
+  File "/root/Assistente/core.py", line 259, in listen
+    recognizer.adjust_for_ambient_noise(source, duration=0.4)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/Assistente/.venv/lib/python3.13/site-packages/speech_recognition/__init__.py", line 377, in adjust_for_ambient_noise
+    assert source.stream is not None, "Audio source must be entered before adjusting, see documentation for ``AudioSource``; are you using ``source`` outside of a ``with`` statement?"  # type: ignore[attr-defined]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Audio source must be entered before adjusting, see documentation for ``AudioSource``; are you using ``source`` outside of a ``with`` statement?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/Assistente/core.py", line 784, in _voice_loop
+    raw = listen(self._rec, self._mic)
+  File "/root/Assistente/core.py", line 258, in listen
+    with mic as source:
+         ^^^
+  File "/root/Assistente/.venv/lib/python3.13/site-packages/speech_recognition/__init__.py", line 183, in __exit__
+    self.stream.close()
+    ^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'close'
+00:40:58 [CRITICAL] k7.core: [CORE] 'NoneType' object has no attribute 'close'
+Traceback (most recent call last):
+  File "/root/Assistente/core.py", line 259, in listen
+    recognizer.adjust_for_ambient_noise(source, duration=0.4)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/Assistente/.venv/lib/python3.13/site-packages/speech_recognition/__init__.py", line 377, in adjust_for_ambient_noise
+    assert source.stream is not None, "Audio source must be entered before adjusting, see documentation for ``AudioSource``; are you using ``source`` outside of a ``with`` statement?"  # type: ignore[attr-defined]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Audio source must be entered before adjusting, see documentation for ``AudioSource``; are you using ``source`` outside of a ``with`` statement?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/Assistente/core.py", line 784, in _voice_loop
+    raw = listen(self._rec, self._mic)
+  File "/root/Assistente/core.py", line 258, in listen
+    with mic as source:
+         ^^^
+  File "/root/Assistente/.venv/lib/python3.13/site-packages/speech_recognition/__init__.py", line 183, in __exit__
+    self.stream.close()
+    ^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'close'
+01:08:24 [CRITICAL] k7.core: [CORE] 'NoneType' object has no attribute 'close'
+Traceback (most recent call last):
+  File "/root/Assistente/core.py", line 259, in listen
+    recognizer.adjust_for_ambient_noise(source, duration=0.4)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/Assistente/.venv/lib/python3.13/site-packages/speech_recognition/__init__.py", line 377, in adjust_for_ambient_noise
+    assert source.stream is not None, "Audio source must be entered before adjusting, see documentation for ``AudioSource``; are you using ``source`` outside of a ``with`` statement?"  # type: ignore[attr-defined]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Audio source must be entered before adjusting, see documentation for ``AudioSource``; are you using ``source`` outside of a ``with`` statement?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/Assistente/core.py", line 784, in _voice_loop
+    raw = listen(self._rec, self._mic)
+  File "/root/Assistente/core.py", line 258, in listen
+    with mic as source:
+         ^^^
+  File "/root/Assistente/.venv/lib/python3.13/site-packages/speech_recognition/__init__.py", line 183, in __exit__
+    self.stream.close()
+    ^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'close'
+01:09:55 [CRITICAL] k7.core: [CORE] 'NoneType' object has no attribute 'close'
+Traceback (most recent call last):
+  File "/root/Assistente/core.py", line 259, in listen
+    recognizer.adjust_for_ambient_noise(source, duration=0.4)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/Assistente/.venv/lib/python3.13/site-packages/speech_recognition/__init__.py", line 377, in adjust_for_ambient_noise
+    assert source.stream is not None, "Audio source must be entered before adjusting, see documentation for ``AudioSource``; are you using ``source`` outside of a ``with`` statement?"  # type: ignore[attr-defined]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Audio source must be entered before adjusting, see documentation for ``AudioSource``; are you using ``source`` outside of a ``with`` statement?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/Assistente/core.py", line 784, in _voice_loop
+    raw = listen(self._rec, self._mic)
+  File "/root/Assistente/core.py", line 258, in listen
+    with mic as source:
+         ^^^
+  File "/root/Assistente/.venv/lib/python3.13/site-packages/speech_recognition/__init__.py", line 183, in __exit__
+    self.stream.close()
+    ^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'close'
+01:11:49 [CRITICAL] k7.core: [CORE] 'NoneType' object has no attribute 'close'
+Traceback (most recent call last):
+  File "/root/Assistente/core.py", line 259, in listen
+    recognizer.adjust_for_ambient_noise(source, duration=0.4)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/Assistente/.venv/lib/python3.13/site-packages/speech_recognition/__init__.py", line 377, in adjust_for_ambient_noise
+    assert source.stream is not None, "Audio source must be entered before adjusting, see documentation for ``AudioSource``; are you using ``source`` outside of a ``with`` statement?"  # type: ignore[attr-defined]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Audio source must be entered before adjusting, see documentation for ``AudioSource``; are you using ``source`` outside of a ``with`` statement?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/Assistente/core.py", line 784, in _voice_loop
+    raw = listen(self._rec, self._mic)
+  File "/root/Assistente/core.py", line 258, in listen
+    with mic as source:
+         ^^^
+  File "/root/Assistente/.venv/lib/python3.13/site-packages/speech_recognition/__init__.py", line 183, in __exit__
+    self.stream.close()
+    ^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'close'
+01:39:46 [CRITICAL] k7.core: [CORE] 'NoneType' object has no attribute 'close'
+Traceback (most recent call last):
+  File "/root/Assistente/core.py", line 259, in listen
+    recognizer.adjust_for_ambient_noise(source, duration=0.4)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/Assistente/.venv/lib/python3.13/site-packages/speech_recognition/__init__.py", line 377, in adjust_for_ambient_noise
+    assert source.stream is not None, "Audio source must be entered before adjusting, see documentation for ``AudioSource``; are you using ``source`` outside of a ``with`` statement?"  # type: ignore[attr-defined]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Audio source must be entered before adjusting, see documentation for ``AudioSource``; are you using ``source`` outside of a ``with`` statement?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/Assistente/core.py", line 784, in _voice_loop
+    raw = listen(self._rec, self._mic)
+  File "/root/Assistente/core.py", line 258, in listen
+    with mic as source:
+         ^^^
+  File "/root/Assistente/.venv/lib/python3.13/site-packages/speech_recognition/__init__.py", line 183, in __exit__
+    self.stream.close()
+    ^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'close'
+02:27:36 [CRITICAL] k7.core: [CORE] 'NoneType' object has no attribute 'close'
+Traceback (most recent call last):
+  File "/root/Assistente/core.py", line 259, in listen
+    recognizer.adjust_for_ambient_noise(source, duration=0.4)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/Assistente/.venv/lib/python3.13/site-packages/speech_recognition/__init__.py", line 377, in adjust_for_ambient_noise
+    assert source.stream is not None, "Audio source must be entered before adjusting, see documentation for ``AudioSource``; are you using ``source`` outside of a ``with`` statement?"  # type: ignore[attr-defined]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Audio source must be entered before adjusting, see documentation for ``AudioSource``; are you using ``source`` outside of a ``with`` statement?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/Assistente/core.py", line 784, in _voice_loop
+    raw = listen(self._rec, self._mic)
+  File "/root/Assistente/core.py", line 258, in listen
+    with mic as source:
+         ^^^
+  File "/root/Assistente/.venv/lib/python3.13/site-packages/speech_recognition/__init__.py", line 183, in __exit__
+    self.stream.close()
+    ^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'close'
+04:54:57 [CRITICAL] k7.core: [CORE] 'NoneType' object has no attribute 'close'
+Traceback (most recent call last):
+  File "/root/Assistente/core.py", line 259, in listen
+    recognizer.adjust_for_ambient_noise(source, duration=0.4)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/Assistente/.venv/lib/python3.13/site-packages/speech_recognition/__init__.py", line 377, in adjust_for_ambient_noise
+    assert source.stream is not None, "Audio source must be entered before adjusting, see documentation for ``AudioSource``; are you using ``source`` outside of a ``with`` statement?"  # type: ignore[attr-defined]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Audio source must be entered before adjusting, see documentation for ``AudioSource``; are you using ``source`` outside of a ``with`` statement?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/Assistente/core.py", line 784, in _voice_loop
+    raw = listen(self._rec, self._mic)
+  File "/root/Assistente/core.py", line 258, in listen
+    with mic as source:
+         ^^^
+  File "/root/Assistente/.venv/lib/python3.13/site-packages/speech_recognition/__init__.py", line 183, in __exit__
+    self.stream.close()
+    ^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'close'
+05:00:48 [CRITICAL] k7.core: [CORE] 'NoneType' object has no attribute 'close'
+Traceback (most recent call last):
+  File "/root/Assistente/core.py", line 259, in listen
+    recognizer.adjust_for_ambient_noise(source, duration=0.4)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/Assistente/.venv/lib/python3.13/site-packages/speech_recognition/__init__.py", line 377, in adjust_for_ambient_noise
+    assert source.stream is not None, "Audio source must be entered before adjusting, see documentation for ``AudioSource``; are you using ``source`` outside of a ``with`` statement?"  # type: ignore[attr-defined]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Audio source must be entered before adjusting, see documentation for ``AudioSource``; are you using ``source`` outside of a ``with`` statement?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/Assistente/core.py", line 784, in _voice_loop
+    raw = listen(self._rec, self._mic)
+  File "/root/Assistente/core.py", line 258, in listen
+    with mic as source:
+         ^^^
+  File "/root/Assistente/.venv/lib/python3.13/site-packages/speech_recognition/__init__.py", line 183, in __exit__
+    self.stream.close()
+    ^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'close'
+06:04:58 [CRITICAL] k7.core: [CORE] 'NoneType' object has no attribute 'close'
+Traceback (most recent call last):
+  File "/root/Assistente/core.py", line 259, in listen
+    recognizer.adjust_for_ambient_noise(source, duration=0.4)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/Assistente/.venv/lib/python3.13/site-packages/speech_recognition/__init__.py", line 377, in adjust_for_ambient_noise
+    assert source.stream is not None, "Audio source must be entered before adjusting, see documentation for ``AudioSource``; are you using ``source`` outside of a ``with`` statement?"  # type: ignore[attr-defined]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Audio source must be entered before adjusting, see documentation for ``AudioSource``; are you using ``source`` outside of a ``with`` statement?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/Assistente/core.py", line 784, in _voice_loop
+    raw = listen(self._rec, self._mic)
+  File "/root/Assistente/core.py", line 258, in listen
+    with mic as source:
+         ^^^
+  File "/root/Assistente/.venv/lib/python3.13/site-packages/speech_recognition/__init__.py", line 183, in __exit__
+    self.stream.close()
+    ^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'close'
+07:02:24 [CRITICAL] k7.core: [CORE] 'NoneType' object has no attribute 'close'
+Traceback (most recent call last):
+  File "/root/Assistente/core.py", line 259, in listen
+    recognizer.adjust_for_ambient_noise(source, duration=0.4)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/Assistente/.venv/lib/python3.13/site-packages/speech_recognition/__init__.py", line 377, in adjust_for_ambient_noise
+    assert source.stream is not None, "Audio source must be entered before adjusting, see documentation for ``AudioSource``; are you using ``source`` outside of a ``with`` statement?"  # type: ignore[attr-defined]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Audio source must be entered before adjusting, see documentation for ``AudioSource``; are you using ``source`` outside of a ``with`` statement?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/Assistente/core.py", line 784, in _voice_loop
+    raw = listen(self._rec, self._mic)
+  File "/root/Assistente/core.py", line 258, in listen
+    with mic as source:
+         ^^^
+  File "/root/Assistente/.venv/lib/python3.13/site-packages/speech_recognition/__init__.py", line 183, in __exit__
+    self.stream.close()
+    ^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'close'
+17:50:49 [INFO    ] k7.core: [LOADER]   ✓ default.py (43 cmd) — Comandos padrão v3: status, VSCode, música SSH, WoL, avisar nó parceiro
+17:50:49 [INFO    ] k7.core: [LOADER] 43 gatilho(s) carregado(s).
+17:50:49 [INFO    ] k7.core: [CORE] Nó='spark' | Nome='Spark' | Android=False
+17:50:49 [INFO    ] k7.core: [API] Iniciando em 0.0.0.0:7007
+17:50:49 [INFO    ] k7.core: [API] Dashboard → http://localhost:7007/dashboard
+17:50:50 [INFO    ] k7.core: [TTS] 'Olá! Sou Spark. Dashboard disponível na porta 7007.'
+17:51:17 [INFO    ] k7.core: [AUTH] Login: 'admin' de 192.168.3.6

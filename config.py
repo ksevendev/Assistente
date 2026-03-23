@@ -15,8 +15,8 @@ import os
 # ❶  IDENTIDADE DO NÓ  — altere para cada instância
 # =============================================================================
 
-NODE_TYPE:      str = "seven"       # "seven" | "spark" | "mobile"
-ASSISTANT_NAME: str = "Seven"
+NODE_TYPE:      str = "spark"       # "seven" | "spark" | "mobile"
+ASSISTANT_NAME: str = "Spark"
 ASSISTANT_LANG: str = "pt-BR"
 
 # =============================================================================
@@ -63,27 +63,27 @@ def get_palette(node_type: str = None) -> dict:
 NETWORK_NODES: dict = {
     "seven": {
         "name":  "Seven",
-        "ip":    "192.168.1.10",
+        "ip":    "192.168.3.12",
         "port":  7007,
-        "mac":   "AA:BB:CC:DD:EE:01",
+        "mac":   "54:27:1E:8C:36:70",
         "type":  "desktop",
-        "specs": "Notebook · Debian 12",
+        "specs": "Notebook · 4GB RAM · Debian 12",
         "icon":  "laptop",
     },
     "spark": {
         "name":  "Spark",
-        "ip":    "192.168.1.11",
+        "ip":    "192.168.3.6",
         "port":  7007,
-        "mac":   "AA:BB:CC:DD:EE:02",
+        "mac":   "00:E0:24:7E:14:E5",
         "type":  "desktop",
-        "specs": "PC Desktop · 16GB RAM",
+        "specs": "PC Desktop · 16GB RAM · Ubuntu 25.04",
         "icon":  "desktop_windows",
     },
     "mobile": {
         "name":  "Mobile",
-        "ip":    "192.168.1.12",
+        "ip":    "192.168.3.24",
         "port":  7007,
-        "mac":   "",
+        "mac":   "C2:B5:22:C9:D0:40",
         "type":  "mobile",
         "specs": "Android · Termux",
         "icon":  "smartphone",
@@ -116,7 +116,7 @@ def get_nodes_with_palette() -> list:
 
 API_HOST:       str = "0.0.0.0"
 API_PORT:       int = 7007
-API_SECRET:     str = "k7-secret-local-network"
+API_SECRET:     str = "kseven-com-br"
 DASHBOARD_PORT: int = 7007
 
 # =============================================================================
@@ -124,7 +124,7 @@ DASHBOARD_PORT: int = 7007
 # =============================================================================
 
 AUTH_DB_PATH:     str = ""   # resolvido após BASE_DIR
-FLASK_SECRET_KEY: str = "k7-dashboard-secret-change-in-production-abc123xyz"
+FLASK_SECRET_KEY: str = "kseven-com-br-spark"
 DEFAULT_USER:     str = "mestre"
 DEFAULT_PASSWORD: str = "k7mestre"
 SESSION_LIFETIME: int = 3600 * 8
@@ -142,7 +142,7 @@ ESPEAK_VOLUME: int = 180
 # ❼  SSH
 # =============================================================================
 
-SSH_USER:    str = "usuario"
+SSH_USER:    str = "root"
 SSH_KEY:     str = os.path.expanduser("~/.ssh/id_rsa")
 SSH_TIMEOUT: int = 10
 SSH_PORT:    int = 22
