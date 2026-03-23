@@ -1,20 +1,19 @@
 # =============================================================================
-# k7-core v2.0 | uninstall.ps1
-# Desinstalador para Windows 10/11
+# k7-core | uninstall.ps1 — Desinstalador Windows
+# Repositório: https://github.com/ksevendev/Assistente
 #
-# Uso (PowerShell como Admin):
+# Uso:
 #   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 #   .\uninstall.ps1 [opções]
 #
 # Opções:
-#   -Full         Remove TUDO incluindo chave SSH
-#   -KeepData     Mantém data/ (banco SQLite e histórico)
-#   -KeepConfig   Mantém config.py
-#   -KeepSSH      Não remove a chave SSH (padrão)
-#   -ServiceOnly  Remove apenas o serviço Windows (NSSM)
-#   -DryRun       Mostra o que seria removido sem remover nada
-#   -Yes          Sem confirmações interativas
-#   -Dir CAMINHO  Diretório de instalação (padrão: dir do script)
+#   -Full         Remove TUDO incluindo o diretório
+#   -KeepData     Preserva banco SQLite e histórico
+#   -KeepConfig   Preserva config.py
+#   -ServiceOnly  Remove apenas o serviço Windows
+#   -DryRun       Simulação sem remover nada
+#   -Yes          Sem confirmações
+#   -Dir CAMINHO  Diretório de instalação
 # =============================================================================
 
 [CmdletBinding()]
@@ -22,7 +21,6 @@ param(
     [switch]$Full,
     [switch]$KeepData,
     [switch]$KeepConfig,
-    [switch]$KeepSSH  = $true,
     [switch]$ServiceOnly,
     [switch]$DryRun,
     [switch]$Yes,
@@ -31,240 +29,180 @@ param(
 
 $ErrorActionPreference = "Continue"
 
-# ─── Helpers ──────────────────────────────────────────────────────────────────
-function Write-Step   { Write-Host "`n  ━━━ $args" -ForegroundColor Cyan }
-function Write-Info   { Write-Host "  [INFO]  $args" -ForegroundColor Cyan }
-function Write-OK     { Write-Host "  [ OK ]  $args" -ForegroundColor Green }
-function Write-Warn   { Write-Host "  [WARN]  $args" -ForegroundColor Yellow }
-function Write-Err    { Write-Host "  [ERRO]  $args" -ForegroundColor Red }
-function Write-Dry    { Write-Host "  [DRY]   $args" -ForegroundColor DarkGray }
+function Write-Step($m)  { Write-Host "`n  ━━━ $m" -ForegroundColor Cyan }
+function Write-Info($m)  { Write-Host "  •  $m"    -ForegroundColor Cyan }
+function Write-OK($m)    { Write-Host "  ✓  $m"    -ForegroundColor Green }
+function Write-Warn($m)  { Write-Host "  ⚠  $m"    -ForegroundColor Yellow }
+function Write-Err($m)   { Write-Host "  ✗  $m"    -ForegroundColor Red }
+function Write-Dry($m)   { Write-Host "  [DRY] Removeria: $m" -ForegroundColor DarkGray }
 
-function Do-Remove {
-    param([string]$Type, [string]$Target, [string]$Desc = "")
-    if ($DryRun) { Write-Dry "REMOVERIA $Type`: $Target $Desc"; return }
-    switch ($Type) {
+function Remove-Item2($type, $target, $desc="") {
+    if ($DryRun) { Write-Dry "$type`: $target $desc"; return }
+    switch ($type) {
         "file" {
-            if (Test-Path $Target -PathType Leaf) {
-                Remove-Item $Target -Force -ErrorAction SilentlyContinue
-                Write-OK "Removido: $(Split-Path $Target -Leaf) $Desc"
+            if (Test-Path $target -PathType Leaf) {
+                Remove-Item $target -Force -ErrorAction SilentlyContinue
+                Write-OK "Removido: $(Split-Path $target -Leaf) $desc"
             }
         }
-        "dir" {
-            if (Test-Path $Target -PathType Container) {
-                Remove-Item $Target -Recurse -Force -ErrorAction SilentlyContinue
-                Write-OK "Removida pasta: $(Split-Path $Target -Leaf) $Desc"
+        "dir"  {
+            if (Test-Path $target -PathType Container) {
+                Remove-Item $target -Recurse -Force -ErrorAction SilentlyContinue
+                Write-OK "Removida pasta: $(Split-Path $target -Leaf) $desc"
             }
         }
     }
 }
 
-function Confirm-Action {
-    param([string]$Message)
-    if ($Yes) { return $true }
-    $r = Read-Host "`n  $Message [s/N]"
-    return ($r -eq "s" -or $r -eq "S")
+# ── Banner ────────────────────────────────────────────────────────────────────
+Write-Host ""
+Write-Host "  ██╗  ██╗███████╗  ██████╗ ██████╗ ██████╗ ███████╗" -ForegroundColor Red
+Write-Host "  Desinstalador — github.com/ksevendev/Assistente"      -ForegroundColor DarkGray
+Write-Host ""
+
+# Detecta versão instalada
+$configPath = Join-Path $Dir "config.py"
+$K7Ver = "?"
+if (Test-Path $configPath) {
+    $content = Get-Content $configPath -Raw -ErrorAction SilentlyContinue
+    if ($content -match 'K7_VERSION.*?[''"](\d\.\d)[''"]') { $K7Ver = $Matches[1] }
+    elseif ($content) { $K7Ver = "2.0" }
 }
 
-# ─── Banner ───────────────────────────────────────────────────────────────────
-Write-Host ""
-Write-Host "  ██╗  ██╗███████╗      ██████╗ ██████╗ ██████╗ ███████╗" -ForegroundColor Red
-Write-Host "  ██║ ██╔╝╚════██║     ██╔════╝██╔═══██╗██╔══██╗██╔════╝" -ForegroundColor Red
-Write-Host "  █████╔╝     ██╔╝     ██║     ██║   ██║██████╔╝█████╗  " -ForegroundColor Red
-Write-Host "  ██╔═██╗    ██╔╝      ██║     ██║   ██║██╔══██╗██╔══╝  " -ForegroundColor Red
-Write-Host "  ██║  ██╗   ██║       ╚██████╗╚██████╔╝██║  ██║███████╗" -ForegroundColor Red
-Write-Host "  ╚═╝  ╚═╝   ╚═╝        ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝" -ForegroundColor Red
-Write-Host ""
-Write-Host "  k7-core v2.0" -ForegroundColor White -NoNewline
-Write-Host " — Desinstalador Windows" -ForegroundColor DarkGray
-Write-Host ""
-
-# ─── Verifica diretório ───────────────────────────────────────────────────────
-$configPath = Join-Path $Dir "config.py"
 if (-not (Test-Path $configPath)) {
-    Write-Err "Instalação do k7-core não encontrada em: $Dir"
+    Write-Err "Instalação k7-core não encontrada em: $Dir"
     Write-Info "Use -Dir CAMINHO para especificar o diretório correto."
     exit 1
 }
-Write-Info "Instalação encontrada em: $Dir"
+Write-Info "k7-core v$K7Ver encontrado em: $Dir"
 
-# ─── Confirmação ──────────────────────────────────────────────────────────────
+# ── Confirmação ────────────────────────────────────────────────────────────
 if (-not $ServiceOnly) {
     Write-Host ""
     Write-Host "  O que será removido:" -ForegroundColor Yellow
     Write-Host "  • Ambiente virtual Python (.venv\)" -ForegroundColor Gray
-    Write-Host "  • Scripts de execução (run*.bat)" -ForegroundColor Gray
-    Write-Host "  • Arquivos temporários (tmp\)" -ForegroundColor Gray
-    Write-Host "  • Logs (logs\)" -ForegroundColor Gray
+    Write-Host "  • Scripts run*.bat e temporários"   -ForegroundColor Gray
+    Write-Host "  • Logs e cache Python"               -ForegroundColor Gray
+    if ($K7Ver -like "3*") { Write-Host "  • Base ChromaDB (data\chroma\)" -ForegroundColor Gray }
     if (-not $KeepData)   { Write-Host "  • Banco de dados e histórico (data\)" -ForegroundColor Red }
     if (-not $KeepConfig) { Write-Host "  • Configuração (config.py)" -ForegroundColor Red }
-    if ($Full -and -not $KeepSSH) { Write-Host "  • Chave SSH (~\.ssh\id_rsa)" -ForegroundColor Red }
-    if ($Full) { Write-Host "  • DIRETÓRIO COMPLETO: $Dir" -ForegroundColor Red }
-    Write-Host "  • Serviço Windows k7core (se instalado)" -ForegroundColor Gray
-
-    if (-not (Confirm-Action "Confirmar desinstalação?")) {
-        Write-Info "Desinstalação cancelada."
-        exit 0
+    if ($Full)            { Write-Host "  • DIRETÓRIO COMPLETO: $Dir" -ForegroundColor Red }
+    Write-Host ""
+    if ($DryRun) { Write-Host "  MODO DRY-RUN: nada será removido." -ForegroundColor Yellow }
+    if (-not $Yes -and -not $DryRun) {
+        $reply = Read-Host "  Confirmar desinstalação? [s/N]"
+        if ($reply -ne "s" -and $reply -ne "S") {
+            Write-Info "Desinstalação cancelada."
+            exit 0
+        }
     }
 }
 
-# ─── Para processos ───────────────────────────────────────────────────────────
-Write-Step "Parando processos k7-core"
-
-$procs = Get-Process | Where-Object { $_.MainWindowTitle -like "*k7*" -or $_.ProcessName -eq "python" } -ErrorAction SilentlyContinue
+# ── Para processos ─────────────────────────────────────────────────────────
+Write-Step "Parando processos"
+$procs = Get-WmiObject Win32_Process -ErrorAction SilentlyContinue |
+    Where-Object { $_.CommandLine -like "*core.py*" }
 foreach ($p in $procs) {
-    try {
-        $cmdLine = (Get-WmiObject Win32_Process -Filter "ProcessId=$($p.Id)").CommandLine
-        if ($cmdLine -like "*core.py*") {
-            if ($DryRun) { Write-Dry "MATARIA processo PID $($p.Id): $cmdLine" }
-            else {
-                Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue
-                Write-OK "Processo encerrado: PID $($p.Id)"
-            }
-        }
-    } catch {}
-}
-
-# ─── Remove serviço Windows (NSSM) ───────────────────────────────────────────
-Write-Step "Removendo serviço Windows"
-
-$svcName = "k7core"
-$svc     = Get-Service -Name $svcName -ErrorAction SilentlyContinue
-
-if ($svc) {
-    if ($DryRun) {
-        Write-Dry "PARARIA e removeria serviço: $svcName"
-    } else {
-        if ($svc.Status -eq "Running") {
-            Stop-Service $svcName -Force -ErrorAction SilentlyContinue
-            Write-OK "Serviço parado: $svcName"
-        }
-        if (Get-Command nssm -ErrorAction SilentlyContinue) {
-            nssm remove $svcName confirm 2>$null
-            Write-OK "Serviço NSSM removido: $svcName"
-        } else {
-            sc.exe delete $svcName 2>$null | Out-Null
-            Write-OK "Serviço removido: $svcName"
-        }
+    if ($DryRun) { Write-Dry "Mataria PID $($p.ProcessId)" }
+    else {
+        Stop-Process -Id $p.ProcessId -Force -ErrorAction SilentlyContinue
+        Write-OK "Processo $($p.ProcessId) encerrado."
     }
-} else {
-    Write-Info "Serviço $svcName não encontrado — nada a remover."
 }
 
-if ($ServiceOnly) {
-    Write-OK "Remoção do serviço concluída."
-    exit 0
-}
+# ── Serviço Windows ────────────────────────────────────────────────────────
+Write-Step "Serviço Windows"
+$svc = Get-Service -Name "k7core" -ErrorAction SilentlyContinue
+if ($svc) {
+    if ($DryRun) { Write-Dry "Pararia e removeria serviço k7core" }
+    else {
+        if ($svc.Status -eq "Running") { Stop-Service "k7core" -Force -ErrorAction SilentlyContinue }
+        if (Get-Command nssm -ErrorAction SilentlyContinue) {
+            nssm remove k7core confirm 2>$null
+        } else {
+            sc.exe delete k7core 2>$null | Out-Null
+        }
+        Write-OK "Serviço k7core removido."
+    }
+} else { Write-Info "Serviço k7core não encontrado." }
 
-# ─── Remove ambiente Python ───────────────────────────────────────────────────
-Write-Step "Removendo ambiente virtual Python"
+if ($ServiceOnly) { Write-OK "Remoção do serviço concluída."; exit 0 }
 
-Do-Remove "dir"  (Join-Path $Dir ".venv")    "(ambiente virtual)"
-Do-Remove "dir"  (Join-Path $Dir "__pycache__") "(cache)"
-
+# ── Ambiente Python ────────────────────────────────────────────────────────
+Write-Step "Ambiente Python"
+Remove-Item2 "dir" (Join-Path $Dir ".venv") "(ambiente virtual)"
 if (-not $DryRun) {
-    Get-ChildItem $Dir -Recurse -Filter "*.pyc" | Remove-Item -Force -ErrorAction SilentlyContinue
-    Get-ChildItem $Dir -Recurse -Filter "__pycache__" | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
-    Write-OK "Arquivos .pyc e __pycache__ removidos."
-} else {
-    Write-Dry "REMOVERIA: todos os *.pyc e __pycache__ em $Dir"
+    Get-ChildItem $Dir -Recurse -Filter "*.pyc" -ErrorAction SilentlyContinue |
+        Remove-Item -Force -ErrorAction SilentlyContinue
+    Get-ChildItem $Dir -Recurse -Filter "__pycache__" -ErrorAction SilentlyContinue |
+        Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+    Write-OK "Cache Python removido."
 }
 
-# ─── Remove scripts de execução ───────────────────────────────────────────────
-Write-Step "Removendo scripts de execução"
+# ── Scripts ─────────────────────────────────────────────────────────────────
+Write-Step "Scripts"
+foreach ($s in @("run.bat","run_seven.bat","run_spark.bat","run_mobile.bat","run.sh","run_seven.sh","run_spark.sh")) {
+    Remove-Item2 "file" (Join-Path $Dir $s)
+}
+Remove-Item2 "file" "$env:USERPROFILE\Desktop\k7-core.lnk" "(atalho Desktop)"
 
-$scripts = @("run.bat", "run_seven.bat", "run_spark.bat", "run_mobile.bat",
-             "run.sh", "run_seven.sh", "run_spark.sh")
-foreach ($s in $scripts) {
-    Do-Remove "file" (Join-Path $Dir $s)
+# ── v3 — ChromaDB ─────────────────────────────────────────────────────────
+if ($K7Ver -like "3*") {
+    Write-Step "Base de Conhecimento v3.0"
+    Remove-Item2 "dir"  (Join-Path $Dir "data\chroma")      "(vetores ChromaDB)"
+    Remove-Item2 "file" (Join-Path $Dir "data\episodic.db")  "(memória episódica)"
 }
 
-# Atalho no Desktop
-$shortcut = Join-Path $env:USERPROFILE "Desktop\k7-core.lnk"
-Do-Remove "file" $shortcut "(atalho do Desktop)"
-
-# ─── Remove dados e logs ──────────────────────────────────────────────────────
-Write-Step "Removendo dados e logs"
-
-Do-Remove "dir" (Join-Path $Dir "tmp")  "(arquivos temporários)"
-Do-Remove "dir" (Join-Path $Dir "logs") "(logs)"
+# ── Dados ──────────────────────────────────────────────────────────────────
+Write-Step "Dados e Logs"
+Remove-Item2 "dir" (Join-Path $Dir "tmp")  "(temporários)"
+Remove-Item2 "dir" (Join-Path $Dir "logs") "(logs)"
 
 if (-not $KeepData) {
     Write-Warn "Removendo dados persistentes..."
-    Do-Remove "file" (Join-Path $Dir "data\k7auth.db")           "(banco de usuários)"
-    Do-Remove "file" (Join-Path $Dir "data\update_history.json")  "(histórico de updates)"
-    Do-Remove "file" (Join-Path $Dir "data\.update.lock")         "(file lock)"
-    # Remove pasta data se vazia
+    Remove-Item2 "file" (Join-Path $Dir "data\k7auth.db")
+    Remove-Item2 "file" (Join-Path $Dir "data\update_history.json")
+    Remove-Item2 "file" (Join-Path $Dir "data\.update.lock")
     $dataDir = Join-Path $Dir "data"
     if (-not $DryRun -and (Test-Path $dataDir)) {
         $items = Get-ChildItem $dataDir -ErrorAction SilentlyContinue
         if ($items.Count -eq 0) {
             Remove-Item $dataDir -Force -ErrorAction SilentlyContinue
             Write-OK "Pasta data\ removida."
-        } else {
-            Write-Warn "Pasta data\ não estava vazia — mantida."
         }
     }
-} else {
-    Write-Info "Dados preservados (-KeepData): $Dir\data\"
-}
+} else { Write-Info "Dados preservados (-KeepData)." }
 
-# ─── Remove configuração ──────────────────────────────────────────────────────
-Write-Step "Removendo configuração"
-
+# ── Config ─────────────────────────────────────────────────────────────────
+Write-Step "Configuração"
 if ($KeepConfig) {
-    Write-Info "Configuração preservada (-KeepConfig): $Dir\config.py"
+    Write-Info "config.py preservado (-KeepConfig)."
 } else {
-    # Backup antes de remover
     if ((Test-Path $configPath) -and -not $DryRun) {
-        $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
-        $backup = Join-Path $env:USERPROFILE "k7core_config_backup_$timestamp.py"
-        Copy-Item $configPath $backup
-        Write-Info "Backup salvo em: $backup"
+        $ts = Get-Date -Format "yyyyMMdd_HHmmss"
+        $bk = "$env:USERPROFILE\k7core_config_backup_$ts.py"
+        Copy-Item $configPath $bk -ErrorAction SilentlyContinue
+        Write-Info "Backup: $bk"
     }
-    Do-Remove "file" $configPath "(configuração principal)"
+    Remove-Item2 "file" $configPath "(configuração principal)"
 }
 
-# ─── Remove chave SSH ─────────────────────────────────────────────────────────
-Write-Step "Tratando chave SSH"
-
-if ($Full -and -not $KeepSSH) {
-    $sshKey = Join-Path $env:USERPROFILE ".ssh\id_rsa"
-    if (Test-Path $sshKey) {
-        Write-Warn "Remover chave SSH pode quebrar outros serviços!"
-        if (Confirm-Action "Remover $sshKey ?") {
-            Do-Remove "file" $sshKey             "(chave privada)"
-            Do-Remove "file" "$sshKey.pub"       "(chave pública)"
-        } else {
-            Write-Info "Chave SSH mantida."
-        }
-    }
-} else {
-    Write-Info "Chave SSH preservada: $env:USERPROFILE\.ssh\id_rsa"
-}
-
-# ─── Remove diretório completo (modo --full) ──────────────────────────────────
+# ── Remoção total ─────────────────────────────────────────────────────────
 if ($Full) {
-    Write-Step "Removendo diretório de instalação completo"
-
-    if (Confirm-Action "CONFIRMA remoção de $Dir ?") {
-        Set-Location $env:USERPROFILE
-        Do-Remove "dir" $Dir "(diretório completo)"
-    }
+    Write-Step "Remoção do diretório completo"
+    Set-Location $env:USERPROFILE
+    Remove-Item2 "dir" $Dir "(diretório completo)"
 } else {
     Write-Info "Diretório $Dir preservado."
-    Write-Info "Para remover manualmente: Remove-Item -Recurse -Force `"$Dir`""
 }
 
-# ─── Resumo ───────────────────────────────────────────────────────────────────
+# ── Resumo ──────────────────────────────────────────────────────────────────
 Write-Host ""
 if ($DryRun) {
-    Write-Host "  ━━━ Resumo (DRY-RUN — nada foi removido) ━━━" -ForegroundColor Yellow
-    Write-Info "Execute sem -DryRun para aplicar a desinstalação."
+    Write-Host "  DRY-RUN: nada foi removido." -ForegroundColor Yellow
 } else {
-    Write-Host "  ╔═══════════════════════════════════════════════════════╗" -ForegroundColor Green
-    Write-Host "  ║      k7-core v2.0 desinstalado com sucesso!           ║" -ForegroundColor Green
-    Write-Host "  ╚═══════════════════════════════════════════════════════╝" -ForegroundColor Green
+    Write-Host "  ✓  k7-core v$K7Ver desinstalado com sucesso." -ForegroundColor Green
     if ($KeepData)   { Write-Info "Dados preservados em: $Dir\data\" }
-    if ($KeepConfig) { Write-Info "Configuração em: $Dir\config.py" }
+    if ($KeepConfig) { Write-Info "Config preservado em: $Dir\config.py" }
 }
 Write-Host ""

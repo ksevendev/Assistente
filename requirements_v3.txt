@@ -1,0 +1,57 @@
+# k7-core v3.0 | requirements.txt
+# Instale com: pip install -r requirements.txt
+#
+# ORDEM RECOMENDADA DE INSTALAÇÃO:
+#   1. pip install -r requirements.txt          ← tudo de uma vez
+#   2. python knowledge_base.py --index         ← indexa seus projetos
+#   3. python core.py                           ← inicia o sistema
+
+# ── Core web + auth (herdado da v2.0) ──────────────────────────────────
+flask>=3.0.0
+flask-login>=0.6.3
+werkzeug>=3.0.0
+requests>=2.31.0
+
+# ── mDNS / Zeroconf ────────────────────────────────────────────────────
+zeroconf>=0.131.0
+
+# ── Voice (Desktop) ────────────────────────────────────────────────────
+SpeechRecognition>=3.10.0
+PyAudio>=0.2.14
+paramiko>=3.4.0
+gTTS>=2.5.0
+pygame>=2.5.0
+
+# ── v3.0 — Memória Semântica (RAG) ────────────────────────────────────
+# ChromaDB: banco vetorial local, persiste em data/chroma/
+chromadb>=0.5.0
+
+# sentence-transformers: modelo de embeddings offline (90 MB, sem GPU)
+# Modelo padrão: all-MiniLM-L6-v2  (384 dimensões, muito rápido)
+sentence-transformers>=3.0.0
+
+# ── v3.0 — LLM local (opcional mas recomendado) ───────────────────────
+# Ollama não é um pacote pip — instale o binário separadamente:
+#   curl -fsSL https://ollama.com/install.sh | sh
+#   ollama pull llama3     # recomendado (~4 GB)
+#   ollama pull mistral    # alternativa mais leve
+#   ollama pull codestral  # melhor para código
+#   ollama serve           # inicia o servidor na porta 11434
+#
+# Variável de ambiente para configurar:
+#   export OLLAMA_URL=http://localhost:11434
+#   export OLLAMA_MODEL=llama3
+
+# ── v3.0 — Gemini API (alternativa cloud, opcional) ───────────────────
+# Não requer pip adicional — usa requests (já instalado acima).
+# Configure com:
+#   export GEMINI_API_KEY=sua_chave_aqui
+# Obtenha sua chave em: https://aistudio.google.com/app/apikey
+
+# ── Auto-update (stdlib apenas — sem dependências extras) ─────────────
+# git deve estar instalado: sudo apt install git
+
+# ── Android/Termux: instale SOMENTE ──────────────────────────────────
+# pip install flask flask-login werkzeug requests zeroconf paramiko
+# NÃO instale PyAudio, SpeechRecognition, chromadb no Termux
+# sentence-transformers pode funcionar em devices com ≥4 GB RAM
